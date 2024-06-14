@@ -1,27 +1,24 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { db } = require('../config/db');
-const { validarContraseña } = require('../utils/passwordUtils');
+const db = require('../config/db');
+const { validarContraseña } = require('../utils/validarContraseña');
 
 exports.registro = (req, res) => {
     const { usuario, fecha_nacimiento, email, contraseña } = req.body;
 
     if (!validarContraseña(contraseña)) {
-        return res.status(400).json({ mensaje: 'La contraseña no cumple con los criterios.' });
+        return res.status(400).json({ mensaje: 'La contraseña no cumple con los requisitos de seguridad.' });
     }
 
-    const contraseñaHasheada = bcrypt.hashSync(contraseña, 10);
+    const hash = bcrypt.hashSync(contraseña, 10);
 
     const query = 'INSERT INTO Usuarios (usuario, fecha_nacimiento, email, contraseña) VALUES (?, ?, ?, ?)';
-    db.query(query, [usuario, fecha_nacimiento, email, contraseñaHasheada], (err, result) => {
+    db.query(query, [usuario, fecha_nacimiento, email, hash], (err, result) => {
         if (err) {
-            if (err.code === 'ER_DUP_ENTRY') {
-                return res.status(400).json({ mensaje: 'El correo electrónico ya está en uso.' });
-            }
-            console.error('Error al insertar usuario:', err);
-            return res.status(500).json({ mensaje: 'Error al registrar el usuario.' });
+            console.error('Error al registrar usuario:', err);
+            return res.status(500).json({ mensaje: 'Error al registrar usuario.' });
         }
-        res.status(201).json({ mensaje: 'Usuario registrado con éxito.' });
+        res.status(201).json({ mensaje: 'Usuario registrado exitosamente.' });
     });
 };
 
@@ -48,8 +45,3 @@ exports.login = (req, res) => {
         }
     });
 };
-
-// Asegúrate de que el archivo exporte correctamente las funciones
-module.exports = { registro: exports.registro, login: exports.login };
-
-
