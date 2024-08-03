@@ -34,10 +34,15 @@ const deleteUser = (req, res) => {
     });
 };
 
-// Función para actualizar un usuario con rol
 const updateUser = (req, res) => {
     const userId = req.params.id;
-    const { usuario, fecha_nacimiento, email, rol, contraseña } = req.body;
+    const { usuario, fecha_nacimiento, email, rol } = req.body;
+
+    console.log('Datos recibidos:', { userId, usuario, fecha_nacimiento, email, rol });
+
+    if (!rol) {
+        return res.status(400).json({ mensaje: 'El rol es requerido' });
+    }
 
     const getRoleIdQuery = 'SELECT id FROM roles WHERE role_name = ?';
     db.query(getRoleIdQuery, [rol], (err, roleResult) => {
@@ -46,34 +51,33 @@ const updateUser = (req, res) => {
             return res.status(500).send('Error del servidor al obtener el ID del rol');
         }
 
+        console.log('Resultado de la consulta del rol:', roleResult);
+
         if (roleResult.length === 0) {
             return res.status(400).json({ mensaje: 'Rol no válido' });
         }
 
         const roleId = roleResult[0].id;
 
-        let query = 'UPDATE Usuarios SET usuario = ?, fecha_nacimiento = ?, email = ?, role_id = ? WHERE ID_Usuario = ?';
-        let params = [usuario, fecha_nacimiento, email, roleId, userId];
+        const query = 'UPDATE Usuarios SET usuario = ?, fecha_nacimiento = ?, email = ?, role_id = ? WHERE ID_Usuario = ?';
+        const params = [usuario, fecha_nacimiento, email, roleId, userId];
 
-        if (contraseña) {
-            if (!validarContraseña(contraseña)) {
-                return res.status(400).json({ mensaje: 'La contraseña no cumple con los requisitos de seguridad.' });
-            }
-            const hashedPassword = bcrypt.hashSync(contraseña, 10);
-            query = 'UPDATE Usuarios SET usuario = ?, fecha_nacimiento = ?, email = ?, role_id = ?, contraseña = ? WHERE ID_Usuario = ?';
-            params = [usuario, fecha_nacimiento, email, roleId, hashedPassword, userId];
-        }
+        console.log('Consulta de actualización:', query);
+        console.log('Parámetros de actualización:', params);
 
         db.query(query, params, (err, result) => {
             if (err) {
                 console.error('Error al actualizar usuario:', err);
                 return res.status(500).send('Error del servidor al actualizar usuario');
             } else {
+                console.log('Resultado de la actualización:', result);
                 return res.json({ mensaje: 'Usuario actualizado exitosamente' });
             }
         });
     });
 };
+
+
 
 module.exports = {
     addUser,
