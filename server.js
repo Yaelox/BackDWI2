@@ -9,12 +9,14 @@ app.use(cors());
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const crudRoutes = require('./routes/crudRoutes');
-const pokemonRoutes =  require('./routes/pokemonRoutes')
+const pokemonRoutes =  require('./routes/pokemonRoutes');
+const contactoRoutes = require('./routes/contactoRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/crud', crudRoutes);
 app.use('/api/pokemon', pokemonRoutes);
+app.use('/api/contacto', contactoRoutes);
 
 const PORT = process.env.PORT || 3000;
 

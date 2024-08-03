@@ -6,7 +6,7 @@ const { validarContraseña } = require('../utils/validarContraseña');
 const addUser = (req, res) => {
     const { usuario, fecha_nacimiento, email, contraseña, role_id } = req.body;
 
-    console.log('Datos recibidos:', { usuario, fecha_nacimiento, email, contraseña, rol_id });
+    console.log('Datos recibidos:', { usuario, fecha_nacimiento, email, contraseña, role_id });
 
     // Validar la contraseña antes de continuar
     if (!validarContraseña(contraseña)) {
