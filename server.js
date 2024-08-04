@@ -12,6 +12,7 @@ const crudRoutes = require('./routes/crudRoutes');
 const pokemonRoutes =  require('./routes/pokemonRoutes');
 const contactoRoutes = require('./routes/contactoRoutes');
 const contraseñaRoutes = require('./routes/contraseñaRoutes');
+const productosRoutes = require('./routes/productosRoutes'); // Añadido aquí
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -19,6 +20,7 @@ app.use('/api/crud', crudRoutes);
 app.use('/api/pokemon', pokemonRoutes);
 app.use('/api/contacto', contactoRoutes);
 app.use('/api/user', contraseñaRoutes);
+app.use('/api/pd', productosRoutes);
 
 const PORT = process.env.PORT || 3000;
 
