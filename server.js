@@ -14,6 +14,7 @@ const contactoRoutes = require('./routes/contactoRoutes');
 const contraseñaRoutes = require('./routes/contraseñaRoutes');
 const productosRoutes = require('./routes/productosRoutes'); // Añadido aquí
 const rolesRoutes = require('./routes/rolesRoutes'); // Añadido aquí
+const clientesRoutes = require('./routes/clientesRoutes'); // Añadido aquí
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -23,6 +24,7 @@ app.use('/api/contacto', contactoRoutes);
 app.use('/api/user', contraseñaRoutes);
 app.use('/api/pd', productosRoutes);
 app.use('/api/roles', rolesRoutes);
+app.use('/api/cliente', clientesRoutes);
 
 const PORT = process.env.PORT || 3000;
 
