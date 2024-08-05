@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const { validarContraseña } = require('../utils/validarContraseña');
 
-exports.registro = (req, res) => {
-    const { usuario, fecha_nacimiento, email, contraseña } = req.body;
+exports.registro = async (req, res) => {
+    const { usuario, fecha_nacimiento, email, contraseña, role_id } = req.body;
 
     if (!validarContraseña(contraseña)) {
         return res.status(400).json({ mensaje: 'La contraseña no cumple con los requisitos de seguridad.' });
@@ -12,25 +12,22 @@ exports.registro = (req, res) => {
 
     const hash = bcrypt.hashSync(contraseña, 10);
 
-    const query = 'INSERT INTO Usuarios (usuario, fecha_nacimiento, email, contraseña) VALUES (?, ?, ?, ?)';
-    db.query(query, [usuario, fecha_nacimiento, email, hash], (err, result) => {
-        if (err) {
-            console.error('Error al registrar usuario:', err);
-            return res.status(500).json({ mensaje: 'Error al registrar usuario.' });
-        }
+    try {
+        // Ejecuta la consulta y recibe solo los resultados
+        const [result] = await db.query('INSERT INTO Usuarios (usuario, fecha_nacimiento, email, contraseña, role_id) VALUES (?, ?, ?, ?, ?)', [usuario, fecha_nacimiento, email, hash, role_id]);
         res.status(201).json({ mensaje: 'Usuario registrado exitosamente.' });
-    });
+    } catch (err) {
+        console.error('Error al registrar usuario:', err);
+        res.status(500).json({ mensaje: 'Error al registrar usuario.' });
+    }
 };
 
-exports.login = (req, res) => {
+
+exports.login = async (req, res) => {
     const { usuario, contraseña } = req.body;
 
-    const query = 'SELECT * FROM Usuarios WHERE usuario = ?';
-    db.query(query, [usuario], (err, results) => {
-        if (err) {
-            console.error('Error al buscar usuario:', err);
-            return res.status(500).json({ mensaje: 'Error al iniciar sesión.' });
-        }
+    try {
+        const [results] = await db.query('SELECT * FROM Usuarios WHERE usuario = ?', [usuario]);
 
         if (results.length === 0) {
             return res.status(401).json({ mensaje: 'Usuario o contraseña incorrectos.' });
@@ -43,5 +40,8 @@ exports.login = (req, res) => {
         } else {
             res.status(401).json({ mensaje: 'Usuario o contraseña incorrectos.' });
         }
-    });
+    } catch (err) {
+        console.error('Error al iniciar sesión:', err);
+        res.status(500).json({ mensaje: 'Error al iniciar sesión.' });
+    }
 };

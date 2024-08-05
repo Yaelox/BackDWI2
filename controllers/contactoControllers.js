@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 // Función para agregar un nuevo contacto
-const addContacto = (req, res) => {
+const addContacto = async (req, res) => {
     const { Nombre, Correo, Mensaje, NombreUsuario } = req.body;
 
     console.log('Datos recibidos:', { Nombre, Correo, Mensaje, NombreUsuario });
@@ -12,14 +12,10 @@ const addContacto = (req, res) => {
         return res.status(400).json({ mensaje: 'Todos los campos son obligatorios.' });
     }
 
-    // Obtener el ID del usuario basado en el nombre
-    const getUserIdQuery = 'SELECT ID_Usuario FROM Usuarios WHERE usuario = ?';
-    db.query(getUserIdQuery, [NombreUsuario], (err, result) => {
-        if (err) {
-            console.error('Error al obtener el ID del usuario:', err);
-            return res.status(500).send('Error del servidor al obtener el ID del usuario');
-        }
-
+    try {
+        // Obtener el ID del usuario basado en el nombre
+        const [result] = await db.query('SELECT ID_Usuario FROM Usuarios WHERE usuario = ?', [NombreUsuario]);
+        
         if (result.length === 0) {
             console.log('Usuario no encontrado:', NombreUsuario);
             return res.status(400).json({ mensaje: 'Usuario no encontrado.' });
@@ -28,17 +24,14 @@ const addContacto = (req, res) => {
         const ID_Usuario = result[0].ID_Usuario;
 
         // Insertar el nuevo contacto
-        const insertContactoQuery = 'INSERT INTO Contacto (Nombre, Correo, Mensaje, ID_Usuario) VALUES (?, ?, ?, ?)';
-        db.query(insertContactoQuery, [Nombre, Correo, Mensaje, ID_Usuario], (err, result) => {
-            if (err) {
-                console.error('Error al agregar contacto:', err);
-                return res.status(500).send('Error del servidor al agregar contacto');
-            }
-
-            // Devolver respuesta de éxito con el ID insertado
-            return res.json({ mensaje: 'Contacto agregado exitosamente', id: result.insertId });
-        });
-    });
+        const [insertResult] = await db.query('INSERT INTO Contacto (Nombre, Correo, Mensaje, ID_Usuario) VALUES (?, ?, ?, ?)', [Nombre, Correo, Mensaje, ID_Usuario]);
+        
+        // Devolver respuesta de éxito con el ID insertado
+        return res.json({ mensaje: 'Contacto agregado exitosamente', id: insertResult.insertId });
+    } catch (err) {
+        console.error('Error al agregar contacto:', err);
+        return res.status(500).send('Error del servidor al agregar contacto');
+    }
 };
 
 module.exports = { addContacto };

@@ -31,5 +31,5 @@ app.use('/api/pedidos', pedidosRoutes);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Servidor HTTP corriendo en el puerto ${PORT}`);
+  console.log(`Servidor HTTPS corriendo en el puerto ${PORT}`);
 });
